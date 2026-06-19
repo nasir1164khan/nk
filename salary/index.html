@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Tax Calculator FY 2026-27</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            color: white;
+            padding: 28px 24px 22px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 0.8rem;
+            opacity: 0.75;
+            margin-bottom: 6px;
+        }
+
+        .designer-top {
+            font-size: 0.78rem;
+            opacity: 0.6;
+            letter-spacing: 0.3px;
+        }
+
+        .designer-top span {
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .body {
+            padding: 28px 24px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            color: #2d3748;
+            background: #fafbfc;
+            transition: border-color 0.2s;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #2c5282;
+            background: white;
+        }
+
+        .input-wrapper .currency {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #718096;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 13px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary {
+            background: #edf2f7;
+            color: #4a5568;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .results {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-row.highlight {
+            background: #f7fafc;
+            margin: 0 -24px;
+            padding: 14px 24px;
+            border-bottom: none;
+        }
+
+        .result-row.danger {
+            background: linear-gradient(90deg, #fff5f5 0%, transparent 100%);
+            margin: 0 -24px;
+            padding: 14px 24px;
+            border-bottom: none;
+        }
+
+        .result-row.success {
+            background: linear-gradient(90deg, #f0fff4 0%, transparent 100%);
+            margin: 0 -24px;
+            padding: 14px 24px;
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .result-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .result-value.large {
+            font-size: 1.25rem;
+            color: #1e3a5f;
+        }
+
+        .result-value.red {
+            color: #c53030;
+        }
+
+        .result-value.green {
+            color: #276749;
+        }
+
+        /* Popup Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 480px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: slideUp 0.25s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            color: white;
+            padding: 18px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            opacity: 0.8;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 0;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        .slab-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        .slab-table th {
+            background: #f7fafc;
+            color: #4a5568;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+        }
+
+        .slab-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #edf2f7;
+            color: #4a5568;
+        }
+
+        .slab-table tr:hover {
+            background: #f7fafc;
+        }
+
+        @media (max-width: 480px) {
+            .calculator { border-radius: 12px; }
+            .header { padding: 22px 18px 18px; }
+            .body { padding: 22px 18px; }
+            .result-row.highlight,
+            .result-row.danger,
+            .result-row.success {
+                margin: 0 -18px;
+                padding: 12px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>Salary Tax Calculator</h1>
+            <p>Pakistan FY 2026-27</p>
+            <div class="designer-top">Design by <span>Nasir Khan</span></div>
+        </div>
+
+        <div class="body">
+            <div class="input-group">
+                <label for="salaryInput">Monthly Salary (Rs.)</label>
+                <div class="input-wrapper">
+                    <span class="currency">Rs.</span>
+                    <input type="number" id="salaryInput" placeholder="Enter monthly salary" min="0" step="1000">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="showSlabs()">Show Slab</button>
+            </div>
+
+            <div class="results" id="results">
+                <div class="result-row">
+                    <span class="result-label">Annual Salary</span>
+                    <span class="result-value" id="annualSalary">Rs. 0</span>
+                </div>
+                <div class="result-row highlight">
+                    <span class="result-label">Taxable Income</span>
+                    <span class="result-value" id="taxableIncome">Rs. 0</span>
+                </div>
+                <div class="result-row danger">
+                    <span class="result-label">Annual Tax</span>
+                    <span class="result-value large red" id="annualTax">Rs. 0</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Monthly Tax</span>
+                    <span class="result-value red" id="monthlyTax">Rs. 0</span>
+                </div>
+                <div class="result-row success">
+                    <span class="result-label">Monthly Take-Home</span>
+                    <span class="result-value large green" id="takeHomeMonthly">Rs. 0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slab Popup Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeSlabs(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Tax Slabs FY 2026-27</h3>
+                <button class="modal-close" onclick="closeSlabs()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="slab-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Taxable Income</th>
+                            <th>Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Up to Rs. 600,000</td><td>0%</td></tr>
+                        <tr><td>2</td><td>600,001 – 1,200,000</td><td>1%</td></tr>
+                        <tr><td>3</td><td>1,200,001 – 2,200,000</td><td>Rs. 6,000 + 11%</td></tr>
+                        <tr><td>4</td><td>2,200,001 – 3,200,000</td><td>Rs. 116,000 + 20%</td></tr>
+                        <tr><td>5</td><td>3,200,001 – 4,100,000</td><td>Rs. 316,000 + 25%</td></tr>
+                        <tr><td>6</td><td>4,100,001 – 5,600,000</td><td>Rs. 541,000 + 29%</td></tr>
+                        <tr><td>7</td><td>5,600,001 – 7,000,000</td><td>Rs. 976,000 + 32%</td></tr>
+                        <tr><td>8</td><td>Above Rs. 7,000,000</td><td>Rs. 1,424,000 + 35%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const slabs = [
+            { limit: 600000, rate: 0, fixed: 0 },
+            { limit: 1200000, rate: 0.01, fixed: 0 },
+            { limit: 2200000, rate: 0.11, fixed: 6000 },
+            { limit: 3200000, rate: 0.20, fixed: 116000 },
+            { limit: 4100000, rate: 0.25, fixed: 316000 },
+            { limit: 5600000, rate: 0.29, fixed: 541000 },
+            { limit: 7000000, rate: 0.32, fixed: 976000 },
+            { limit: Infinity, rate: 0.35, fixed: 1424000 }
+        ];
+
+        function formatNumber(num) {
+            return 'Rs. ' + num.toLocaleString('en-PK');
+        }
+
+        function calculateTax() {
+            let monthly = parseFloat(document.getElementById('salaryInput').value) || 0;
+            if (monthly <= 0) {
+                document.getElementById('results').classList.remove('show');
+                return;
+            }
+
+            let annual = monthly * 12;
+            let tax = 0;
+
+            if (annual <= 600000) {
+                tax = 0;
+            } else {
+                for (let i = 1; i < slabs.length; i++) {
+                    if (annual <= slabs[i].limit) {
+                        let prevLimit = slabs[i-1].limit;
+                        tax = slabs[i].fixed + (annual - prevLimit) * slabs[i].rate;
+                        break;
+                    }
+                    if (i === slabs.length - 1) {
+                        let prevLimit = slabs[i-1].limit;
+                        tax = slabs[i].fixed + (annual - prevLimit) * slabs[i].rate;
+                    }
+                }
+            }
+
+            tax = Math.round(tax);
+            let monthlyTax = Math.round(tax / 12);
+            let takeHome = monthly - monthlyTax;
+
+            document.getElementById('results').classList.add('show');
+            document.getElementById('annualSalary').textContent = formatNumber(annual);
+            document.getElementById('taxableIncome').textContent = formatNumber(annual);
+            document.getElementById('annualTax').textContent = formatNumber(tax);
+            document.getElementById('monthlyTax').textContent = formatNumber(monthlyTax);
+            document.getElementById('takeHomeMonthly').textContent = formatNumber(takeHome);
+        }
+
+        function showSlabs() {
+            document.getElementById('modalOverlay').classList.add('show');
+        }
+
+        function closeSlabs(e) {
+            if (!e || e.target === document.getElementById('modalOverlay')) {
+                document.getElementById('modalOverlay').classList.remove('show');
+            }
+        }
+
+        // Real-time calculation on input
+        document.getElementById('salaryInput').addEventListener('input', calculateTax);
+    </script>
+</body>
+</html>
